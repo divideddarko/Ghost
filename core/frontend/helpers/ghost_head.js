@@ -58,11 +58,9 @@ function getMembersHelper(data, frontendKey) {
 }
 
 function getSearchHelper(frontendKey) {
-    if (!labs.isSet('sodoSearch')) {
-        return '';
-    }
+    const adminUrl = urlUtils.getAdminUrl() || urlUtils.getSiteUrl();
 
-    let helper = `<script defer src="${config.get('sodoSearch:url')}" data-sodo-search="${urlUtils.getSiteUrl()}" data-version="${config.get('sodoSearch:version')}" data-key="${frontendKey}" data-api="${urlUtils.urlFor('api', {type: 'content'}, true)}" crossorigin="anonymous"></script>`;
+    let helper = `<script defer src="${config.get('sodoSearch:url')}" data-sodo-search="${adminUrl}" data-version="${config.get('sodoSearch:version')}" data-key="${frontendKey}" crossorigin="anonymous"></script>`;
 
     return helper;
 }
@@ -211,6 +209,10 @@ module.exports = async function ghost_head(options) { // eslint-disable-line cam
             }
             if (cardAssetService.hasFile('css')) {
                 head.push(`<link rel="stylesheet" type="text/css" href="${getAssetUrl('public/cards.min.css')}">`);
+            }
+
+            if (labs.isSet('comments') && settingsCache.get('enable_comments') !== 'off') {
+                head.push(`<script defer src="${getAssetUrl('public/comment-counts.min.js')}" data-ghost-comments-counts-api="${urlUtils.getSiteUrl(true)}members/api/comments/counts/"></script>`);
             }
 
             if (!_.isEmpty(globalCodeinjection)) {
